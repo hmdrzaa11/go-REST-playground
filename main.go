@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/hmdrzaa11/micro-api/handlers"
 )
@@ -16,5 +17,14 @@ func main() {
 
 	servMux.Handle("/", hh) //pass the type Hello and because of "ServeHTTP" it qualifies as "Handler"
 	servMux.Handle("/goodbye", gh)
-	http.ListenAndServe(":8000", servMux) //we now pass our ServeMux to handle requests
+	//http.ListenAndServe(":8000", servMux) this is going to give us a basic server its better to control the timeouts
+	//to manage our resource better
+	srv := &http.Server{
+		Addr:         ":8000",
+		Handler:      servMux,
+		IdleTimeout:  time.Second * 120,
+		ReadTimeout:  time.Second * 1,
+		WriteTimeout: time.Second * 1,
+	}
+	srv.ListenAndServe()
 }

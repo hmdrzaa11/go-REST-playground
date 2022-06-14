@@ -1,3 +1,3 @@
-module github.com/hmdrzaa11/go-rest-api
+module github.com/hmdrzaa11/micro-api
 
 go 1.18

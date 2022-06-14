@@ -1,24 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
+
+	"github.com/hmdrzaa11/micro-api/handlers"
 )
 
 func main() {
-	// "HandleFunc" is going to take your "fn" and creates a "Handler" from it <Convert it>  and attach that with the "path"
-	//to the "DefaultServeMux"
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		//read the body
-		bs, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, "Oops!", http.StatusBadRequest)
-			return
-		}
-		fmt.Fprintf(w, "Hello %s\n", bs) //writes string into client
-	})
+	l := log.New(os.Stdout, "REST-api", log.LstdFlags)
+	hh := handlers.NewHello(l)
+	gh := handlers.NewGoodbye(l)
+	servMux := http.NewServeMux() //now we are going to create a new servMux then register all of our handlers into it
 
-	http.ListenAndServe("127.0.0.1:8000", nil) //if you do not pass a handler its going to use "defaultServeMux"
-
+	servMux.Handle("/", hh) //pass the type Hello and because of "ServeHTTP" it qualifies as "Handler"
+	servMux.Handle("/goodbye", gh)
+	http.ListenAndServe(":8000", servMux) //we now pass our ServeMux to handle requests
 }

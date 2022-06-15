@@ -1,6 +1,10 @@
 package data
 
-import "time"
+import (
+	"encoding/json"
+	"io"
+	"time"
+)
 
 type Product struct {
 	ID          int     `json:"id"`
@@ -13,8 +17,30 @@ type Product struct {
 	DeletedOn   string  `json:"-"`
 }
 
-func GetProducts() []*Product {
+func (p *Product) FromJson(i io.Reader) error { //we call this method on an empty "product"
+	de := json.NewDecoder(i)
+	return de.Decode(p)
+}
+
+type Products []*Product //make an alias because we want to add some utility methods to it
+
+func (p *Products) ToJson(w io.Writer) error {
+	en := json.NewEncoder(w)
+	return en.Encode(p)
+}
+
+func GetProducts() Products {
 	return productList
+}
+
+func AddProducts(p *Product) {
+	p.ID = GetNextId()
+	productList = append(productList, p)
+}
+
+func GetNextId() int {
+	lastProduct := productList[len(productList)-1]
+	return lastProduct.ID + 1
 }
 
 var productList = []*Product{

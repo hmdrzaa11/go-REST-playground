@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -17,12 +17,41 @@ func NewProducts(l *log.Logger) *Products {
 	return &Products{l}
 }
 
-func (p *Products) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	lp := data.GetProducts()
-	bs, err := json.Marshal(lp)
-	if err != nil {
-		http.Error(w, "unable to marshal", http.StatusInternalServerError)
+func (p *Products) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+
+	//GET /
+	if r.Method == http.MethodGet {
+		p.getProducts(rw, r)
 		return
 	}
-	w.Write(bs)
+
+	//POST /
+	if r.Method == http.MethodPost {
+		p.addProduct(rw, r)
+		return
+	}
+
+	//catch all
+	rw.WriteHeader(http.StatusMethodNotAllowed)
+
+}
+
+func (p *Products) getProducts(rw http.ResponseWriter, r *http.Request) {
+	lp := data.GetProducts()
+	err := lp.ToJson(rw)
+	if err != nil {
+		http.Error(rw, "failed to marshal", http.StatusInternalServerError)
+	}
+}
+
+func (p *Products) addProduct(rw http.ResponseWriter, r *http.Request) {
+	fmt.Println("Handle POST /")
+	//create the product obj
+	prod := &data.Product{}
+	err := prod.FromJson(r.Body) //call the method an this will fill the struct
+	if err != nil {
+		http.Error(rw, "failed to convert into json", http.StatusBadRequest)
+	}
+	data.AddProducts(prod)
+
 }

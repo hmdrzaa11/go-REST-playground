@@ -24,6 +24,7 @@ func main() {
 	srv := &http.Server{
 		Addr:         ":8000",
 		Handler:      servMux,
+		ErrorLog:     l, //sets the error logger for the server
 		IdleTimeout:  time.Second * 120,
 		ReadTimeout:  time.Second * 1,
 		WriteTimeout: time.Second * 1,

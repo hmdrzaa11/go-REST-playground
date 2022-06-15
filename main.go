@@ -14,13 +14,11 @@ import (
 )
 
 func main() {
-	l := log.New(os.Stdout, "REST-api", log.LstdFlags)
-	hh := handlers.NewHello(l)
-	gh := handlers.NewGoodbye(l)
+	l := log.New(os.Stdout, "REST-api: ", log.LstdFlags)
+	ph := handlers.NewProducts(l)
 	servMux := http.NewServeMux() //now we are going to create a new servMux then register all of our handlers into it
 
-	servMux.Handle("/", hh) //pass the type Hello and because of "ServeHTTP" it qualifies as "Handler"
-	servMux.Handle("/goodbye", gh)
+	servMux.Handle("/", ph)
 	//http.ListenAndServe(":8000", servMux) this is going to give us a basic server its better to control the timeouts
 	//to manage our resource better
 	srv := &http.Server{
@@ -44,6 +42,7 @@ func main() {
 	signal.Notify(sigChan, os.Interrupt) //broadcast a message on the "sigChan" when the "os.Interrupt" event happens
 	signal.Notify(sigChan, syscall.SIGTERM)
 
+	log.Printf("listening on port :8000")
 	//2-we need to now block the code so its not going to exit so we are going to "read" from the channel
 	sig := <-sigChan
 	fmt.Println("Received termination signal, graceful shutdown : ", sig)

@@ -10,16 +10,24 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/hmdrzaa11/micro-api/handlers"
 )
 
 func main() {
 	l := log.New(os.Stdout, "REST-api: ", log.LstdFlags)
 	ph := handlers.NewProducts(l)
-	servMux := http.NewServeMux() //now we are going to create a new servMux then register all of our handlers into it
+	servMux := mux.NewRouter() //now we are to use the gorilla mux as our mux
 
-	servMux.Handle("/", ph)
-	//http.ListenAndServe(":8000", servMux) this is going to give us a basic server its better to control the timeouts
+	//create a sub route for GET methods
+	getRouter := servMux.Methods(http.MethodGet).Subrouter() //we are separating our app in sub routes based on METHODS its going
+	getRouter.HandleFunc("/", ph.GetProducts)                //to help us for better middleware implementation
+
+	putRouter := servMux.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProducts) //here we specifying that id is of type number
+
+	postRouter := servMux.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/", ph.AddProduct)
 	//to manage our resource better
 	srv := &http.Server{
 		Addr:         ":8000",

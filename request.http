@@ -14,11 +14,12 @@ Content-Type: application/json
 GET http://localhost:8000/ 
 
 ### PUT PRODUCTS 
-PUT http://localhost:8000/3
+PUT http://localhost:8000/2
 Content-Type: application/json
 
 {
-    "name":"Green Tea",
-    "description":"nice cup of green tea",
-    "price":4.99
+    "name":"Double Espresso",
+    "description":"very strong",
+    "price":6.99,
+    "sku":"fjf123"
 }

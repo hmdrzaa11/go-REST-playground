@@ -2,6 +2,7 @@ package data
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"time"
 )
@@ -36,6 +37,28 @@ func GetProducts() Products {
 func AddProducts(p *Product) {
 	p.ID = GetNextId()
 	productList = append(productList, p)
+}
+
+func UpdateProducts(id int, p *Product) error {
+	prod, index, err := findProduct(id)
+	if err != nil {
+		return err
+	}
+	p.ID = prod.ID //because we already set all other fields we only need the ID
+	p.UpdatedOn = time.Now().String()
+
+	productList[index] = p
+	return nil
+}
+
+func findProduct(id int) (*Product, int, error) {
+	for i, prod := range productList {
+		if prod.ID == id {
+			return prod, i, nil
+		}
+	}
+
+	return nil, -1, errors.New("product not found")
 }
 
 func GetNextId() int {

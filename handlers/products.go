@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
+	"strconv"
 
 	"github.com/hmdrzaa11/micro-api/data"
 )
@@ -31,6 +33,34 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//PUT /
+	if r.Method == http.MethodPut {
+		path := r.URL.Path //gives us the "/<SOMETHING>" but we need to take out the "id"
+		//use a regex
+		regex := regexp.MustCompile(`/([0-9]+)`) //it it's an invalid regex its going to panic
+		m := regex.FindAllStringSubmatch(path, -1)
+		fmt.Println("Matched: ", m)
+		if len(m) != 1 {
+			//means we match a lot more OR nil and in this case is invalid
+			http.Error(rw, "invalid URI", http.StatusBadRequest)
+			return
+		}
+
+		if len(m[0]) != 2 {
+			http.Error(rw, "invalid URI", http.StatusBadRequest)
+			return
+		}
+		idString := m[0][1] //because the returned result of regex includes something like this " [[/12 12]]" we want the second index
+		id, err := strconv.Atoi(idString)
+
+		if err != nil {
+			http.Error(rw, "invalid URI", http.StatusBadRequest)
+			return
+		}
+		p.updateProducts(id, rw, r)
+		return
+	}
+
 	//catch all
 	rw.WriteHeader(http.StatusMethodNotAllowed)
 
@@ -54,4 +84,19 @@ func (p *Products) addProduct(rw http.ResponseWriter, r *http.Request) {
 	}
 	data.AddProducts(prod)
 
+}
+
+func (p *Products) updateProducts(id int, rw http.ResponseWriter, r *http.Request) {
+	fmt.Println("Handle PUT /")
+	//create the product obj
+	prod := &data.Product{}
+	err := prod.FromJson(r.Body) //call the method an this will fill the struct
+	if err != nil {
+		http.Error(rw, "failed to convert into json", http.StatusBadRequest)
+	}
+
+	err = data.UpdateProducts(id, prod)
+	if err != nil {
+		http.Error(rw, "product not found", http.StatusNotFound)
+	}
 }

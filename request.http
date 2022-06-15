@@ -12,3 +12,13 @@ Content-Type: application/json
 
 ### GET PRODUCTS 
 GET http://localhost:8000/ 
+
+### PUT PRODUCTS 
+PUT http://localhost:8000/3
+Content-Type: application/json
+
+{
+    "name":"Green Tea",
+    "description":"nice cup of green tea",
+    "price":4.99
+}

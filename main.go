@@ -24,10 +24,13 @@ func main() {
 	getRouter.HandleFunc("/", ph.GetProducts)                //to help us for better middleware implementation
 
 	putRouter := servMux.Methods(http.MethodPut).Subrouter()
+	putRouter.Use(ph.ValidateProductMiddleware)
 	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProducts) //here we specifying that id is of type number
+	//we can add a custom middleware to this subrouter
 
 	postRouter := servMux.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/", ph.AddProduct)
+	postRouter.Use(ph.ValidateProductMiddleware) //also applied the middleware in here as well
 	//to manage our resource better
 	srv := &http.Server{
 		Addr:         ":8000",

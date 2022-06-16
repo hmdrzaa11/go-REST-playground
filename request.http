@@ -3,10 +3,10 @@ POST  http://localhost:8000
 Content-Type: application/json
 
 {
-    "id":1,
     "name":"tea",
     "description":"nice cup of tea",
-    "price":3.25
+    "price":3.25,
+    "sku":"wolf123"
 }
 
 
@@ -14,7 +14,7 @@ Content-Type: application/json
 GET http://localhost:8000/ 
 
 ### PUT PRODUCTS 
-PUT http://localhost:8000/2
+PUT http://localhost:8000/3
 Content-Type: application/json
 
 {

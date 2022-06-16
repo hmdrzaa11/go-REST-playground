@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -64,7 +65,12 @@ func (p *Products) ValidateProductMiddleware(next http.Handler) http.Handler {
 			http.Error(rw, "failed to convert into json", http.StatusBadRequest)
 			return
 		}
-
+		//here we are going to all validation around the product
+		err = prod.Validate()
+		if err != nil {
+			http.Error(rw, fmt.Sprintf("error validating product: %s", err.Error()), http.StatusBadRequest)
+			return
+		}
 		//if everything went well we are going to add the "prod" into request context
 		ctx := context.WithValue(r.Context(), KeyProduct{}, prod) //here we adding to the "r.Context" SO DO NOT use a "context.Background"
 		//because you will loos all of your request data

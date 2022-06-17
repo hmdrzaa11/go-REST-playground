@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	gorillaHandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/hmdrzaa11/micro-api/handlers"
 )
@@ -18,6 +19,9 @@ func main() {
 	l := log.New(os.Stdout, "REST-api: ", log.LstdFlags)
 	ph := handlers.NewProducts(l)
 	servMux := mux.NewRouter() //now we are to use the gorilla mux as our mux
+
+	//CORS handler
+	corsHandler := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"http://localhost:3000"}))
 
 	//create a sub route for GET methods
 	getRouter := servMux.Methods(http.MethodGet).Subrouter() //we are separating our app in sub routes based on METHODS its going
@@ -34,8 +38,8 @@ func main() {
 	//to manage our resource better
 	srv := &http.Server{
 		Addr:         ":8000",
-		Handler:      servMux,
-		ErrorLog:     l, //sets the error logger for the server
+		Handler:      corsHandler(servMux), //wrap the serveMux with "CorsHandler"
+		ErrorLog:     l,                    //sets the error logger for the server
 		IdleTimeout:  time.Second * 120,
 		ReadTimeout:  time.Second * 1,
 		WriteTimeout: time.Second * 1,
